@@ -24,7 +24,7 @@ static uint16_t CCITT_TABLE[256] =
    0xEF1F, 0xFF3E, 0xCF5D, 0xDF7C, 0xAF9B, 0xBFBA, 0x8FD9, 0x9FF8, 0x6E17, 0x7E36, 0x4E55, 0x5E74,
    0x2E93, 0x3EB2, 0x0ED1, 0x1EF0};
 
-uint16_t quasar_crc16(uint8_t const* data, size_t len) {
+uint16_t quasar_crc16(uint8_t const* data, size_t const len) {
   if(data == NULL || len == 0)
     return 0;
   uint16_t crc = 0xFFFF;
@@ -46,9 +46,13 @@ uint16_t quasar_crc16_ccitt(uint8_t const* data, size_t len) {
     return 0;
   uint16_t crc = 0xFFFF;
   while(len--) {
-    uint8_t index = (uint8_t)((crc >> 8) ^ *data++);
+    uint8_t const index = (uint8_t)((crc >> 8) ^ *data++);
     crc = (crc << 8) ^ CCITT_TABLE[index];
   }
 
   return crc;
+}
+
+uint16_t quasar_byteswap16(uint16_t const value) {
+  return (value >> 8) | (value << 8);
 }

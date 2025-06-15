@@ -32,6 +32,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 target_sources(${PROJECT_NAME}
   PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/src/private/crc16.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/private/exif.c
 )
 
 target_include_directories(${PROJECT_NAME}

@@ -24,4 +24,6 @@ QUASAR_C_API uint16_t quasar_crc16(uint8_t const* data, size_t len);
  */
 QUASAR_C_API uint16_t quasar_crc16_ccitt(uint8_t const* data, size_t len);
 
+QUASAR_C_API uint16_t quasar_byteswap16(uint16_t value);
+
 QUASAR_C_API_END
