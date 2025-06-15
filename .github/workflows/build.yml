@@ -1,0 +1,39 @@
+name: Build
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build-rust:
+    runs-on: [self-hosted, debian-default-x86]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cache cargo registry and build
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Build
+        run: cargo build 
+
+  build-cxx:
+    runs-on: [self-hosted, debian-default-x86]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build
+        run: conan build . --build=missing
+

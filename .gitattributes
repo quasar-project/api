@@ -1,0 +1,8 @@
+* text=auto
+
+*.yml linguist-detectable=true
+*.sh linguist-detectable=true
+*.toml linguist-detectable=true
+*.json linguist-detectable=true
+*.csv linguist-detectable=true
+*.proto linguist-detectable=true

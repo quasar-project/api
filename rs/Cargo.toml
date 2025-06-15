@@ -1,0 +1,22 @@
+[package]
+name = "quasar-protobufs"
+version = "0.1.0"
+authors = [
+    "whs31 <ryazantsev.dl@edu.spbstu.ru>"
+]
+keywords = [ "protocol", "protobuf" ]
+edition = "2024"
+publish = true
+
+[dependencies]
+anyhow = "1.0.98"
+uuid = "1.16.0"
+chrono = { version = "0.4", features = ["clock"] }
+
+prost = "0.13.4"
+prost-types = "0.13.4"
+tonic = "0.13.1"
+mint = "0.5.9"
+
+[build-dependencies]
+tonic-build = "0.13.1"
