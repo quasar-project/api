@@ -1,6 +1,6 @@
 #pragma once
 
-#include <quasar/api/detail/definitions.h>
+#include <quasar/api/ffi/detail/definitions.h>
 
 QUASAR_C_API_BEGIN
 

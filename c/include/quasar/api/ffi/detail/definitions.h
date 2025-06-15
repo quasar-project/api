@@ -10,4 +10,4 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include <quasar/api/detail/export.h>
+#include <quasar/api/ffi/detail/export.h>

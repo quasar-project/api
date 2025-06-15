@@ -1,8 +1,8 @@
 #pragma once
 
 #include <stdalign.h>
-#include <quasar/api/detail/definitions.h>
-#include <quasar/api/enums.h>
+#include <quasar/api/ffi/detail/definitions.h>
+#include <quasar/api/ffi/enums.h>
 
 QUASAR_C_API_BEGIN
 
