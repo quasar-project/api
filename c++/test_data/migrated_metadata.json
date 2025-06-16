@@ -1,0 +1,41 @@
+{
+  "image": {
+    "angle": 0.4095519185066223,
+    "dimensions": {
+      "lx": 2000.0,
+      "ly": 3735.0,
+      "x0": 100.0,
+      "y0": -200.0
+    },
+    "div": null,
+    "drift_angle": -0.15541914105415344,
+    "fic": 1.0,
+    "resolution": {
+      "dx": 1.0,
+      "dy": 1.0
+    },
+    "time_duration": 0.5,
+    "time_offset": 1.0
+  },
+  "image_kind": "strip",
+  "meta": {
+    "library_version": [
+      1,
+      6,
+      0
+    ],
+    "sar_mode": 1,
+    "timestamp": {
+      "human": "1970-01-01 00:00:00.0000000",
+      "unix": 0
+    }
+  },
+  "nav": {
+    "altitude": 290.6500244140625,
+    "coordinates": [
+      54.3916570672569,
+      48.76908306785768
+    ],
+    "velocity": 40.85688400268555
+  }
+}

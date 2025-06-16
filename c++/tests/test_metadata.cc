@@ -16,6 +16,14 @@ TEST_CASE("Image metadata", "[metadata]") {
 
         REQUIRE(metadata.to_json() == data.json("empty_metadata.json"));
       }  // Basic
+
+      SECTION("Migrate legacy") {
+        auto const metadata = quasar::ImageMetadata::from_json(
+          data.json("m1-30-10-2024_11-26-41-meta.json")
+        );
+
+        REQUIRE(metadata.to_json() == data.json("migrated_metadata.json"));
+      }
     }  // Serialize
 
     SECTION("Deserialize") {
