@@ -95,7 +95,7 @@ namespace quasar {
     [[nodiscard]] static ImageMetadata from_json(nlohmann::json const& json);
     [[nodiscard]] static ImageMetadata from_json_string(std::string_view json);
 
-    [[nodiscard]] static ImageMetadata from_exif_bytes(span<std::byte const> exif) noexcept;
+    [[nodiscard]] static ImageMetadata from_exif_bytes(span<std::byte const> exif);
 
    private:
     explicit ImageMetadata(quasar_image_metadata data);

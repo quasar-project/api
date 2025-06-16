@@ -76,7 +76,7 @@ QUASAR_C_API struct quasar_image_metadata quasar_image_metadata_empty();
 QUASAR_C_API uint16_t quasar_image_metadata_checksum(struct quasar_image_metadata const* metadata);
 
 QUASAR_C_API struct quasar_image_metadata
-  quasar_image_metadata_from_exif(uint8_t const* exif_data, size_t exif_data_size);
+  quasar_image_metadata_from_exif(uint8_t const* exif_data, size_t exif_data_size, int* error);
 
 static size_t const QUASAR_IMAGE_METADATA_EXIF_HEADER_OFFSET = 20;
 static uint16_t const QUASAR_IMAGE_METADATA_EXIF_HEADER_MARKER = 0xFFE1;

@@ -9,7 +9,7 @@ from conan.tools.build import check_min_cppstd
 
 class QuasarAPIRecipe(ConanFile):
     name = "quasar.api"
-    version = "cci.20250616"
+    version = "cci.20250617"
     description = "QuaSAR C/C++ API "
     author = "whs31 <whs31@github.io>"
     topics = ("quasar")

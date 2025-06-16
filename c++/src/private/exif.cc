@@ -234,13 +234,18 @@ namespace quasar {
     return ImageMetadata::from_json(nlohmann::json::parse(json));
   }
 
-  ImageMetadata ImageMetadata::from_exif_bytes(span<std::byte const> const exif) noexcept {
-    return ImageMetadata(
+  ImageMetadata ImageMetadata::from_exif_bytes(span<std::byte const> const exif) {
+    auto errc = int();
+    auto m =  ImageMetadata(
       ::quasar_image_metadata_from_exif(
         reinterpret_cast<std::uint8_t const*>(exif.data()),
-        exif.size()
+        exif.size(),
+        &errc
       )
     );
+    if(errc != 0)
+      throw std::runtime_error("failed to parse EXIF metadata: error code " + std::to_string(errc));
+    return m;
   }
 
   ImageMetadata::ImageMetadata(quasar_image_metadata data)

@@ -76,22 +76,31 @@ uint16_t quasar_image_metadata_checksum(struct quasar_image_metadata const* meta
 }
 
 struct quasar_image_metadata
-  quasar_image_metadata_from_exif(uint8_t const* exif_data, size_t const exif_data_size) {
+  quasar_image_metadata_from_exif(uint8_t const* exif_data, size_t const exif_data_size, int* error) {
   if(! exif_data
      || exif_data_size
-          < (sizeof(struct quasar_image_metadata) + QUASAR_IMAGE_METADATA_EXIF_HEADER_OFFSET))
+          < (sizeof(struct quasar_image_metadata) + QUASAR_IMAGE_METADATA_EXIF_HEADER_OFFSET)) {
+    if(error)
+      *error = 1;
     return quasar_image_metadata_empty();
+  }
 
   size_t const exif_offset = QUASAR_IMAGE_METADATA_EXIF_HEADER_OFFSET;
-  if((exif_offset + sizeof(struct quasar_image_metadata_exif_header)) > exif_data_size)
+  if((exif_offset + sizeof(struct quasar_image_metadata_exif_header)) > exif_data_size) {
+    if(error)
+      *error = 1;
     return quasar_image_metadata_empty();
+  }
 
   struct quasar_image_metadata_exif_header header;
   memcpy(&header, exif_data + exif_offset, sizeof(header));
   header.marker = quasar_byteswap16(header.marker);
 
-  if(header.marker != QUASAR_IMAGE_METADATA_EXIF_HEADER_MARKER)
+  if(header.marker != QUASAR_IMAGE_METADATA_EXIF_HEADER_MARKER) {
+    if(error)
+      *error = 1;
     return quasar_image_metadata_empty();
+  }
 
   size_t const metadata_offset = exif_offset + sizeof(header);
   if((metadata_offset + sizeof(struct quasar_image_metadata)) > exif_data_size)
