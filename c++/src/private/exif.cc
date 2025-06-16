@@ -5,7 +5,9 @@
 
 namespace quasar {
   ImageMetadata::ImageMetadata()
-    : d_(std::make_unique<quasar_image_metadata>()) {}
+    : d_(std::make_unique<quasar_image_metadata>()) {
+    ::quasar_image_metadata_init(d_.get());
+  }
 
   ImageMetadata::~ImageMetadata() = default;
 

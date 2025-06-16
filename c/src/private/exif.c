@@ -67,7 +67,6 @@ void quasar_image_metadata_to_json(
   char* buffer,
   size_t const buffer_size
 ) {
-  struct json_value_s* root = malloc(sizeof(struct json_object_s));
   char* cursor = buffer;
   size_t const written = snprintf(
     cursor,
@@ -118,11 +117,10 @@ void quasar_image_metadata_to_json(
   );
   if(written >= buffer_size)
     buffer[buffer_size - 1] = '\0';
-  free(root);
 }
 
 struct quasar_image_metadata
-  quasar_image_metadata_from_exif(uint8_t const* exif_data, size_t exif_data_size) {
+  quasar_image_metadata_from_exif(uint8_t const* exif_data, size_t const exif_data_size) {
   if(! exif_data
      || exif_data_size
           < (sizeof(struct quasar_image_metadata) + QUASAR_IMAGE_METADATA_EXIF_HEADER_OFFSET))

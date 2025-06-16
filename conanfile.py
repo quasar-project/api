@@ -21,7 +21,7 @@ class QuasarAPIRecipe(ConanFile):
         "test": [True, False],
     }
     default_options = {
-        "shared": True,
+        "shared": False,
         "test": False,
     }
 
@@ -64,7 +64,14 @@ class QuasarAPIRecipe(ConanFile):
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "quasar.api")
         self.cpp_info.set_property("cmake_target_name", "quasar::api_all")
+        self.cpp_info.requires = ["fmt::fmt"]
+        if self.options.test:
+            self.cpp_info.requires.append("catch2::catch2")
         self.cpp_info.components["api"].set_property("cmake_target_name", "quasar::api")
         self.cpp_info.components["api"].libs = ["quasar-api"]
+        if not self.options.shared:
+            self.cpp_info.components["api"].defines = ["QUASAR_API_C_STATIC_LIBRARY"]
         self.cpp_info.components["api_pp"].set_property("cmake_target_name", "quasar::api++")
         self.cpp_info.components["api_pp"].libs = ["quasar-api_pp"]
+        if not self.options.shared:
+            self.cpp_info.components["api_pp"].defines = ["QUASAR_API_C_STATIC_LIBRARY", "QUASAR_API_STATIC_LIBRARY"]

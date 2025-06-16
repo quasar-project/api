@@ -25,5 +25,10 @@ find_package(fmt REQUIRED)
 add_subdirectory(c)
 add_subdirectory(c++)
 
+if(QUASAR_API_TESTS)
+  enable_testing()
+  add_subdirectory(c++/tests)
+endif()
+
 unset(BUILD_SHARED_LIBS CACHE)
 unset(QUASAR_API_TESTS CACHE)

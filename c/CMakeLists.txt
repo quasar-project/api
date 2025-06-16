@@ -44,7 +44,7 @@ if (WIN32)
   if (BUILD_SHARED_LIBS)
     target_compile_definitions(${PROJECT_NAME} PRIVATE QUASAR_API_C_LIBRARY)
   else ()
-    target_compile_definitions(${PROJECT_NAME} PRIVATE QUASAR_API_C_STATIC_LIBRARY)
+    target_compile_definitions(${PROJECT_NAME} PUBLIC QUASAR_API_C_STATIC_LIBRARY)
   endif ()
 endif ()
 
