@@ -36,6 +36,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 target_sources(${PROJECT_NAME}
   PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/src/private/crc16.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/private/exif.cc
 )
 
 target_link_libraries(${PROJECT_NAME}
