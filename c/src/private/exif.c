@@ -17,6 +17,29 @@ struct quasar_image_metadata quasar_image_metadata_empty() {
   return m;
 }
 
+int quasar_version_check(
+  uint16_t const major,
+  uint16_t const minor,
+  uint16_t const patch,
+  uint16_t const required_major,
+  uint16_t const required_minor,
+  uint16_t const required_patch
+) {
+  if(major < required_major)
+    return -1;
+  if(major > required_major)
+    return 1;
+  if(minor < required_minor)
+    return -1;
+  if(minor > required_minor)
+    return 1;
+  if(patch < required_patch)
+    return -1;
+  if(patch > required_patch)
+    return 1;
+  return 0;
+}
+
 void quasar_image_metadata_init(struct quasar_image_metadata* metadata) {
   metadata->latitude = 0.0;
   metadata->longitude = 0.0;
@@ -77,12 +100,16 @@ struct quasar_image_metadata
   struct quasar_image_metadata result;
   memcpy(&result, exif_data + metadata_offset, sizeof(result));
 
-  // if legacy
-  if(result.library_version[0] * 100'000 + result.library_version[1] * 1'000
-       + result.library_version[2]
-     < 106'000) {
+  if(quasar_version_check(
+       result.library_version[0],
+       result.library_version[1],
+       result.library_version[2],
+       1,
+       6,
+       0
+     )
+     <= 0)
     result.velocity /= 3.6f;
-  }
 
   return result;
 }
