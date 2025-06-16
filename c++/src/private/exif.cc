@@ -153,7 +153,7 @@ namespace quasar {
     j["meta"] = nlohmann::json::object();
     j["meta"]["timestamp"] = nlohmann::json::object();
     j["meta"]["timestamp"]["unix"] = this->timestamp().time_since_epoch().count();
-    j["meta"]["timestamp"]["human"] = fmt::format("{:%Y-%m-%d %H:%M:%S}", this->timestamp());
+    j["meta"]["timestamp"]["human"] = fmt::format("{:%Y-%m-%d %H:%M:%S}", std::chrono::time_point_cast<std::chrono::seconds>(this->timestamp()));
     j["meta"]["library_version"] = this->library_version();
     j["meta"]["sar_mode"] = this->sar_mode();
     j["image_kind"] = this->kind();
