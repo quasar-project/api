@@ -2,38 +2,46 @@ name: Build
 
 on:
   push:
-    branches: [ "123" ]
+    branches: [ "main" ]
   pull_request:
-    branches: [ "123" ]
+    branches: [ "main" ]
 
 env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  build-rust:
+#  build-rust:
+#    runs-on: [self-hosted, debian-default-x86]
+#
+#    steps:
+#      - uses: actions/checkout@v4
+#
+#      - name: Cache cargo registry and build
+#        uses: actions/cache@v3
+#        with:
+#          path: |
+#            ~/.cargo/registry
+#            ~/.cargo/git
+#            target
+#          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+#
+#      - name: Build
+#        run: cargo build
+
+  test-cxx:
     runs-on: [self-hosted, debian-default-x86]
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Cache cargo registry and build
-        uses: actions/cache@v3
+      - name: Build
+        run: conan build . --build=missing -o "quasar.api/*:test=True"
+
+      - name: Test
+        run: ./build/Release/c++/tests/quasar-api-bundle_test --reporter JUnit::out=test_detail.xml --reporter console::out=-::colour-mode=ansi
+
+      - name: Test Summary
+        uses: test-summary/action@v2
         with:
-          path: |
-            ~/.cargo/registry
-            ~/.cargo/git
-            target
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-
-      - name: Build
-        run: cargo build 
-
-  build-cxx:
-    runs-on: [self-hosted, debian-default-x86]
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Build
-        run: conan build . --build=missing
-
+          paths: "test_detail.xml"
+        if: always()
