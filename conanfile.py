@@ -31,6 +31,7 @@ class QuasarAPIRecipe(ConanFile):
 
     def requirements(self):
         self.requires("fmt/10.2.1", transitive_headers=True, transitive_libs=True)
+        self.requires("nlohmann_json/[>=3.11.2]", transitive_headers=True, transitive_libs=True)
         if self.options.test:
             self.requires("catch2/[=3.7.1]")
 
@@ -64,7 +65,7 @@ class QuasarAPIRecipe(ConanFile):
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "quasar.api")
         self.cpp_info.set_property("cmake_target_name", "quasar::api_all")
-        self.cpp_info.requires = ["fmt::fmt"]
+        self.cpp_info.requires = ["fmt::fmt", "nlohmann_json::nlohmann_json"]
         if self.options.test:
             self.cpp_info.requires.append("catch2::catch2")
         self.cpp_info.components["api"].set_property("cmake_target_name", "quasar::api")

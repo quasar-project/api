@@ -1,12 +1,33 @@
 #include <quasar/api/exif.h>
 
 #include <vector>
+#include <fmt/chrono.h>
 #include <quasar/api/ffi/exif.h>
+
+#ifdef _MSC_VER
+#  include <ciso646>
+#endif
 
 namespace quasar {
   ImageMetadata::ImageMetadata()
     : d_(std::make_unique<quasar_image_metadata>()) {
     ::quasar_image_metadata_init(d_.get());
+  }
+
+  ImageMetadata::ImageMetadata(ImageMetadata const& other)
+    : d_(std::make_unique<quasar_image_metadata>(*other.d_)) {}
+
+  ImageMetadata& ImageMetadata::operator=(ImageMetadata const& other) {
+    *this = ImageMetadata(*other.d_);
+    return *this;
+  }
+
+  ImageMetadata::ImageMetadata(ImageMetadata&& other) noexcept
+    : d_(std::move(other.d_)) {}
+
+  ImageMetadata& ImageMetadata::operator=(ImageMetadata&& other) noexcept {
+    this->d_ = std::move(other.d_);
+    return *this;
   }
 
   ImageMetadata::~ImageMetadata() = default;
@@ -77,6 +98,14 @@ namespace quasar {
     d_->time_duration = static_cast<float>(duration.count());
   }
 
+  std::chrono::system_clock::time_point ImageMetadata::timestamp() const noexcept {
+    return std::chrono::system_clock::from_time_t(d_->timestamp);
+  }
+
+  void ImageMetadata::set_timestamp(std::chrono::system_clock::time_point timestamp) noexcept {
+    d_->timestamp = std::chrono::system_clock::to_time_t(timestamp);
+  }
+
   ImageKind ImageMetadata::kind() const noexcept { return static_cast<ImageKind>(d_->kind); }
 
   void ImageMetadata::set_kind(ImageKind const kind) noexcept {
@@ -119,25 +148,90 @@ namespace quasar {
     return ::quasar_image_metadata_checksum(d_.get());
   }
 
-  std::string ImageMetadata::to_json() const noexcept {
-    auto buffer_size = static_cast<std::size_t>(512);
-    auto buffer = std::vector<char>(buffer_size);
-
-    while(true) {
-      std::fill(buffer.begin(), buffer.end(), '\0');
-      ::quasar_image_metadata_to_json(d_.get(), buffer.data(), buffer.size());
-
-      if(auto const actual_len = ::strnlen(buffer.data(), buffer.size());
-         actual_len < buffer.size() - 1)
-        return std::string(buffer.data());
-
-      buffer_size *= 2;
-      buffer.resize(buffer_size);
-    }
+  nlohmann::json ImageMetadata::to_json() const {
+    auto j = nlohmann::json::object();
+    j["meta"] = nlohmann::json::object();
+    j["meta"]["timestamp"] = nlohmann::json::object();
+    j["meta"]["timestamp"]["unix"] = this->timestamp().time_since_epoch().count();
+    j["meta"]["timestamp"]["human"] = fmt::format("{:%Y-%m-%d %H:%M:%S}", this->timestamp());
+    j["meta"]["library_version"] = this->library_version();
+    j["meta"]["sar_mode"] = this->sar_mode();
+    j["image_kind"] = this->kind();
+    j["nav"] = nlohmann::json::object();
+    j["nav"]["coordinates"] = {this->latitude(), this->longitude()};
+    j["nav"]["velocity"] = this->velocity();
+    j["nav"]["altitude"] = this->altitude();
+    j["image"] = nlohmann::json::object();
+    j["image"]["resolution"] = {
+      {"dx", this->dx()},
+      {"dy", this->dy()}
+    };
+    j["image"]["dimensions"] = {
+      {"lx", this->width()      },
+      {"ly", this->height()     },
+      {"x0", this->near_edge()  },
+      {"y0", this->frame_shift()}
+    };
+    j["image"]["angle"] = this->angle();
+    j["image"]["drift_angle"] = this->drift_angle();
+    if(this->kind() == ImageKind::Telescopic)
+      j["image"]["div"] = this->divergence_angle();
+    else
+      j["image"]["div"] = nullptr;
+    j["image"]["fic"] = this->frequency_interpolation_coefficient();
+    j["image"]["time_offset"] = this->time_offset().count();
+    j["image"]["time_duration"] = this->time_duration().count();
+    return j;
   }
 
-  ImageMetadata ImageMetadata::from_json(std::string const& json) noexcept {
-    return ImageMetadata(::quasar_image_metadata_from_json(json.data(), json.size()));
+  std::string ImageMetadata::to_json_string(std::size_t const indent) const {
+    return this->to_json().dump(static_cast<int>(indent));
+  }
+
+  ImageMetadata ImageMetadata::from_json(nlohmann::json const& json) {
+    auto const is_legacy = not json.contains("meta") or not json["meta"].contains("library_version")
+                        or not json["meta"]["library_version"].is_array()
+                        or json["meta"]["library_version"].size() != 3;
+    if(is_legacy)
+      return ImageMetadata::from_legacy_json(json);
+    auto m = ImageMetadata();
+    m.set_latitude(json["nav"]["coordinates"][0].get<double>());
+    m.set_longitude(json["nav"]["coordinates"][1].get<double>());
+    m.set_velocity(json["nav"]["velocity"].get<float>());
+    m.set_altitude(json["nav"]["altitude"].get<float>());
+    m.set_angle(json["image"]["angle"].get<float>());
+    m.set_dx(json["image"]["resolution"]["dx"].get<float>());
+    m.set_dy(json["image"]["resolution"]["dy"].get<float>());
+    m.set_width(json["image"]["dimensions"]["lx"].get<float>());
+    m.set_height(json["image"]["dimensions"]["ly"].get<float>());
+    m.set_near_edge(json["image"]["dimensions"]["x0"].get<float>());
+    m.set_frame_shift(json["image"]["dimensions"]["y0"].get<float>());
+    auto const drift_angle = json["image"]["drift_angle"];
+    m.set_drift_angle(drift_angle.is_null() ? 0.f : drift_angle.get<float>());
+    if(json["image"].contains("div") and not json["image"]["div"].is_null())
+      m.set_divergence_angle(json["image"]["div"].get<float>());
+    else
+      m.set_divergence_angle(0.f);
+    m.set_frequency_interpolation_coefficient(json["image"]["fic"].get<float>());
+    m.set_time_offset(std::chrono::duration<double>(json["image"]["time_offset"].get<double>()));
+    m.set_time_duration(
+      std::chrono::duration<double>(json["image"]["time_duration"].get<double>())
+    );
+    m.set_kind(json["image_kind"].get<ImageKind>());
+    m.set_library_version(
+      {json["meta"]["library_version"][0].get<std::uint16_t>(),
+       json["meta"]["library_version"][1].get<std::uint16_t>(),
+       json["meta"]["library_version"][2].get<std::uint16_t>()}
+    );
+    m.set_sar_mode(json["meta"]["sar_mode"].get<std::uint8_t>());
+    m.set_timestamp(
+      std::chrono::system_clock::from_time_t(json["meta"]["timestamp"]["unix"].get<std::time_t>())
+    );
+    return m;
+  }
+
+  ImageMetadata ImageMetadata::from_json_string(std::string_view const json) {
+    return ImageMetadata::from_json(nlohmann::json::parse(json));
   }
 
   ImageMetadata ImageMetadata::from_exif_bytes(span<std::byte const> const exif) noexcept {
@@ -151,4 +245,32 @@ namespace quasar {
 
   ImageMetadata::ImageMetadata(quasar_image_metadata data)
     : d_(std::make_unique<quasar_image_metadata>(data)) {}
+
+  ImageMetadata ImageMetadata::from_legacy_json(nlohmann::json const& json) {
+    auto const& nav = json["nav"];
+    auto const& resolution = json["resolution"];
+    auto const& dimensions = json["dimensions"];
+    auto m = ImageMetadata();
+    m.set_latitude(nav["coordinates"][0]);
+    m.set_longitude(nav["coordinates"][1]);
+    m.set_velocity(nav["velocity"].get<float>() / 3.6f);  // Convert from km/h to m/s
+    m.set_altitude(nav["altitude"]);
+    m.set_angle(nav["azimuth"]);
+    m.set_dx(resolution["dx"]);
+    m.set_dy(resolution["dy"]);
+    m.set_width(dimensions["lx"]);
+    m.set_height(dimensions["ly"]);
+    m.set_near_edge(dimensions["x0"]);
+    m.set_frame_shift(dimensions["y0"]);
+    auto const& drift_angle = json["drift_angle"];
+    m.set_drift_angle(drift_angle.is_null() ? 0.f : static_cast<float>(drift_angle));
+    m.set_divergence_angle(json["div"]);
+    m.set_sar_mode(json["mode"]);
+    m.set_frequency_interpolation_coefficient(json["fic"]);
+    m.set_time_offset(std::chrono::duration<double>(json["time_offset"]));
+    m.set_time_duration(std::chrono::duration<double>(json["time_duration"]));
+    m.set_kind(json["image_type"] == "telescopic" ? ImageKind::Telescopic : ImageKind::Strip);
+    m.set_library_version({1, 6, 0});
+    return m;
+  }
 }  // namespace quasar

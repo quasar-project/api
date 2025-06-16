@@ -21,6 +21,7 @@ if ("${CMAKE_GENERATOR}" MATCHES "^Visual Studio")
 endif ()
 
 find_package(fmt REQUIRED)
+find_package(nlohmann_json REQUIRED)
 
 add_subdirectory(c)
 add_subdirectory(c++)

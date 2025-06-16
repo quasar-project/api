@@ -3,11 +3,14 @@
 #include <array>
 #include <chrono>
 #include <memory>
+#include <string>
+#include <string_view>
 #include <quasar/api/detail/export.h>
 #include <quasar/api/span.h>
 #include <quasar/api/enums.h>
 
-extern "C" {
+extern "C"
+{
   struct quasar_image_metadata;
 }
 
@@ -15,6 +18,10 @@ namespace quasar {
   class QUASAR_API ImageMetadata {
    public:
     ImageMetadata();
+    ImageMetadata(ImageMetadata const&);
+    ImageMetadata& operator=(ImageMetadata const&);
+    ImageMetadata(ImageMetadata&&) noexcept;
+    ImageMetadata& operator=(ImageMetadata&&) noexcept;
     ~ImageMetadata();
 
     [[nodiscard]] double latitude() const noexcept;
@@ -59,6 +66,9 @@ namespace quasar {
     [[nodiscard]] std::chrono::duration<double> time_duration() const noexcept;
     void set_time_duration(std::chrono::duration<double> const& duration) noexcept;
 
+    [[nodiscard]] std::chrono::system_clock::time_point timestamp() const noexcept;
+    void set_timestamp(std::chrono::system_clock::time_point timestamp) noexcept;
+
     [[nodiscard]] ImageKind kind() const noexcept;
     void set_kind(ImageKind kind) noexcept;
 
@@ -79,13 +89,18 @@ namespace quasar {
 
     [[nodiscard]] std::uint16_t calculate_checksum() const noexcept;
 
-    [[nodiscard]] std::string to_json() const noexcept;
+    [[nodiscard]] nlohmann::json to_json() const;
+    [[nodiscard]] std::string to_json_string(std::size_t indent = 2) const;
 
-    [[nodiscard]] static ImageMetadata from_json(std::string const& json) noexcept;
+    [[nodiscard]] static ImageMetadata from_json(nlohmann::json const& json);
+    [[nodiscard]] static ImageMetadata from_json_string(std::string_view json);
+
     [[nodiscard]] static ImageMetadata from_exif_bytes(span<std::byte const> exif) noexcept;
 
-  private:
+   private:
     explicit ImageMetadata(quasar_image_metadata data);
+
+    [[nodiscard]] static ImageMetadata from_legacy_json(nlohmann::json const& json);
 
     std::unique_ptr<quasar_image_metadata> d_;
   };

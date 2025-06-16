@@ -32,7 +32,7 @@ struct quasar_image_metadata {
   uint8_t __reserved_1[2];      ///< Reserved for future use.
   uint8_t sar_mode;             ///< SAR mode used for the image.
   uint8_t kind;                 ///< Type of the image (telescopic or strip).
-  uint8_t __reserved_2[8];      ///< Reserved for future use.
+  uint64_t timestamp;           ///< Unix timestamp of the image capture.
   uint16_t crc16;               ///< CRC16 checksum of the metadata.
 };
 
@@ -50,20 +50,8 @@ static_assert(
 QUASAR_C_API void quasar_image_metadata_init(struct quasar_image_metadata* metadata);
 QUASAR_C_API struct quasar_image_metadata quasar_image_metadata_empty();
 QUASAR_C_API uint16_t quasar_image_metadata_checksum(struct quasar_image_metadata const* metadata);
-QUASAR_C_API void quasar_image_metadata_to_json(
-  struct quasar_image_metadata const* metadata,
-  char* buffer,
-  size_t buffer_size
-);
-QUASAR_C_API struct quasar_image_metadata
-  quasar_image_metadata_from_json(char const* json, size_t json_size);
 QUASAR_C_API struct quasar_image_metadata
   quasar_image_metadata_from_exif(uint8_t const* exif_data, size_t exif_data_size);
-// QUASAR_C_API void quasar_image_metadata_to_exif(
-//   struct quasar_image_metadata const* metadata,
-//   uint8_t* exif_data,
-//   size_t exif_data_size
-// );
 
 static size_t const QUASAR_IMAGE_METADATA_EXIF_HEADER_OFFSET = 20;
 static uint16_t const QUASAR_IMAGE_METADATA_EXIF_HEADER_MARKER = 0xFFE1;

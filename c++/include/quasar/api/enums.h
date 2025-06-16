@@ -1,6 +1,7 @@
 #pragma once
 
 #include <fmt/format.h>
+#include <nlohmann/json.hpp>
 #include <quasar/api/ffi/enums.h>
 
 namespace quasar {
@@ -9,6 +10,14 @@ namespace quasar {
     CUDA = QUASAR_DSP_BACKEND_CUDA,
     Undefined = QUASAR_DSP_BACKEND_UNDEFINED
   };
+  NLOHMANN_JSON_SERIALIZE_ENUM(
+    DSPBackend,
+    {
+      {DSPBackend::Basic,     "basic"    },
+      {DSPBackend::CUDA,      "cuda"     },
+      {DSPBackend::Undefined, "undefined"}
+  }
+  )
 
   enum class WindowFunction {
     Hamming = QUASAR_WINDOW_FUNCTION_HAMMING,
@@ -16,12 +25,29 @@ namespace quasar {
     Nuttall = QUASAR_WINDOW_FUNCTION_NUTTALL,
     Undefined = QUASAR_WINDOW_FUNCTION_UNDEFINED
   };
+  NLOHMANN_JSON_SERIALIZE_ENUM(
+    WindowFunction,
+    {
+      {WindowFunction::Hamming,   "hamming"  },
+      {WindowFunction::Blackman,  "blackman" },
+      {WindowFunction::Nuttall,   "nuttall"  },
+      {WindowFunction::Undefined, "undefined"}
+  }
+  )
 
   enum class ImageFormat {
     PNG = QUASAR_IMAGE_FORMAT_PNG,
     JPEG = QUASAR_IMAGE_FORMAT_JPEG,
     Undefined = QUASAR_IMAGE_FORMAT_UNDEFINED
   };
+  NLOHMANN_JSON_SERIALIZE_ENUM(
+    ImageFormat,
+    {
+      {ImageFormat::PNG,       "png"      },
+      {ImageFormat::JPEG,      "jpeg"     },
+      {ImageFormat::Undefined, "undefined"}
+  }
+  )
 
   enum class ImageUnderlyingType {
     Unsigned8Bit = QUASAR_IMAGE_UNDERLYING_TYPE_UNSIGNED_8_BIT,
@@ -30,12 +56,30 @@ namespace quasar {
     ComplexFloat64Bit = QUASAR_IMAGE_UNDERLYING_TYPE_COMPLEX_FLOAT_64_BIT,
     Undefined = QUASAR_IMAGE_UNDERLYING_TYPE_UNDEFINED
   };
+  NLOHMANN_JSON_SERIALIZE_ENUM(
+    ImageUnderlyingType,
+    {
+      {ImageUnderlyingType::Unsigned8Bit,      "unsigned_8_bit"      },
+      {ImageUnderlyingType::Signed16Bit,       "signed_16_bit"       },
+      {ImageUnderlyingType::Float32Bit,        "float_32_bit"        },
+      {ImageUnderlyingType::ComplexFloat64Bit, "complex_float_64_bit"},
+      {ImageUnderlyingType::Undefined,         "undefined"           }
+  }
+  )
 
   enum class ImageKind {
     Telescopic = QUASAR_IMAGE_KIND_TELESCOPIC,
     Strip = QUASAR_IMAGE_KIND_STRIP,
     Undefined = QUASAR_IMAGE_KIND_UNDEFINED
   };
+  NLOHMANN_JSON_SERIALIZE_ENUM(
+    ImageKind,
+    {
+      {ImageKind::Telescopic, "telescopic"},
+      {ImageKind::Strip,      "strip"     },
+      {ImageKind::Undefined,  "undefined" }
+  }
+  )
 
   [[nodiscard]] inline std::size_t size_of(ImageUnderlyingType const type) noexcept {
     return quasar_image_underlying_type_size(static_cast<quasar_image_underlying_type>(type));

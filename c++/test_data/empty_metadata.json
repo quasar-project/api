@@ -1,0 +1,41 @@
+{
+  "image": {
+    "angle": 0.0,
+    "dimensions": {
+      "lx": 0.0,
+      "ly": 0.0,
+      "x0": 0.0,
+      "y0": 0.0
+    },
+    "div": null,
+    "drift_angle": 0.0,
+    "fic": 0.0,
+    "resolution": {
+      "dx": 0.0,
+      "dy": 0.0
+    },
+    "time_duration": 0.0,
+    "time_offset": 0.0
+  },
+  "image_kind": "undefined",
+  "meta": {
+    "library_version": [
+      0,
+      0,
+      0
+    ],
+    "sar_mode": 0,
+    "timestamp": {
+      "human": "1970-01-01 00:00:00.0000000",
+      "unix": 0
+    }
+  },
+  "nav": {
+    "altitude": 0.0,
+    "coordinates": [
+      0.0,
+      0.0
+    ],
+    "velocity": 0.0
+  }
+}
