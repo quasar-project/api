@@ -77,5 +77,12 @@ struct quasar_image_metadata
   struct quasar_image_metadata result;
   memcpy(&result, exif_data + metadata_offset, sizeof(result));
 
+  // if legacy
+  if(result.library_version[0] * 100'000 + result.library_version[1] * 1'000
+       + result.library_version[2]
+     < 106'000) {
+    result.velocity /= 3.6f;
+  }
+
   return result;
 }
