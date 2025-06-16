@@ -3,32 +3,34 @@ name: Publish
 on:
   push:
     tags:
+      - 'v*.*.*'
       - '*.*.*'
+      - 'cci.*'
 
 env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  publish-cargo:
-    runs-on: [self-hosted, debian-default-x86]
+  # publish-cargo:
+  #   runs-on: [self-hosted, debian-default-x86]
 
-    steps:
-      - uses: actions/checkout@v4
+  #   steps:
+  #     - uses: actions/checkout@v4
 
-      - name: Cache cargo registry and build
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.cargo/registry
-            ~/.cargo/git
-            target
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+  #     - name: Cache cargo registry and build
+  #       uses: actions/cache@v3
+  #       with:
+  #         path: |
+  #           ~/.cargo/registry
+  #           ~/.cargo/git
+  #           target
+  #         key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
-      - name: Build
-        run: cargo build --release
+  #     - name: Build
+  #       run: cargo build --release
 
-      - name: Publish
-        run: cargo publish --no-verify --registry whs31 || echo "Already published, skipping"
+  #     - name: Publish
+  #       run: cargo publish --no-verify --registry whs31 || echo "Already published, skipping"
 
   publish-conan:
     runs-on: [self-hosted, debian-default-x86]
@@ -40,4 +42,4 @@ jobs:
         run: conan create . -b missing --user quasar --channel dev
 
       - name: Upload
-        run: conan upload "quasar.protobufs/*" -r whs31 --force -c
+        run: conan upload "quasar.api/*" -r whs31 --force -c
